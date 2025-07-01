@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "midtrans-client": "^1.4.3"
+  }
+}
