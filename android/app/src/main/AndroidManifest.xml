@@ -6,10 +6,12 @@
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
-        android:label="pi_dimafood"
+        android:label="DIMAFOOD"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true"
         android:requestLegacyExternalStorage="true">
+        
 
         <activity
             android:name=".MainActivity"
