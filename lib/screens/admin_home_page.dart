@@ -28,7 +28,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     const KelolaPesananPage(),
     const KelolaMenuPage(),
     const AdminPesananPage(),
-    const AdminProfileLogoutPage(),
+    const LogOutPage(), // sudah pakai halaman logout yang benar
   ];
 
   final List<String> iconPaths = [
@@ -219,44 +219,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 ),
               )
               : null,
-    );
-  }
-}
-
-// ==================== PAGES =====================
-
-class AdminProfileLogoutPage extends StatelessWidget {
-  const AdminProfileLogoutPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 40),
-            Container(
-              width: 180,
-              height: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color.fromARGB(255, 0, 127, 254),
-                  width: 1,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ClipOval(
-                child: Image.asset(
-                  'lib/assets/images/logo_dimafood.jpeg',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:pi_dimafood_new/models/menu_model.dart';
 import 'package:pi_dimafood_new/screens/detail_menu.dart';
 import 'package:pi_dimafood_new/widgets/search_menu.dart';
+import 'package:pi_dimafood_new/models/menu_model.dart';
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -23,9 +23,7 @@ class _HomeContentState extends State<HomeContent> {
   );
 
   void _onChipTap(String label) {
-    setState(() {
-      _selectedCategory = label;
-    });
+    setState(() => _selectedCategory = label);
   }
 
   Widget _buildCategoryChip(String label) {
@@ -33,7 +31,7 @@ class _HomeContentState extends State<HomeContent> {
     return GestureDetector(
       onTap: () => _onChipTap(label),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color:
               isSelected
@@ -47,6 +45,7 @@ class _HomeContentState extends State<HomeContent> {
           style: GoogleFonts.inter(
             color: isSelected ? Colors.white : Colors.black,
             fontWeight: FontWeight.w500,
+            fontSize: 12,
           ),
         ),
       ),
@@ -55,6 +54,8 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,14 +79,19 @@ class _HomeContentState extends State<HomeContent> {
         const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Wrap(
-            spacing: 10,
-            children: [
-              _buildCategoryChip("Semua"),
-              _buildCategoryChip("Makanan"),
-              _buildCategoryChip("Minuman"),
-              _buildCategoryChip("Dessert"),
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildCategoryChip("Semua"),
+                const SizedBox(width: 8),
+                _buildCategoryChip("Makanan"),
+                const SizedBox(width: 8),
+                _buildCategoryChip("Minuman"),
+                const SizedBox(width: 8),
+                _buildCategoryChip("Dessert"),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 22),
@@ -103,22 +109,28 @@ class _HomeContentState extends State<HomeContent> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(child: Text('Tidak ada menu'));
                 }
 
                 final allMenus =
-                    snapshot.data!.docs.map((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      return MenuModel.fromFirestore(doc.id, data);
-                    }).toList();
+                    snapshot.data!.docs
+                        .map(
+                          (doc) => MenuModel.fromFirestore(
+                            doc.id,
+                            doc.data() as Map<String, dynamic>,
+                          ),
+                        )
+                        .toList();
 
                 final filtered =
                     allMenus.where((menu) {
                       if (_selectedCategory == 'Semua') return menu.isPopuler;
                       return menu.kategori == _selectedCategory;
                     }).toList();
+
+                // Grid responsif: jika lebar <600, 2 kolom, jika >=600, 3 kolom
+                int crossAxisCount = screenWidth < 600 ? 2 : 3;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,31 +150,26 @@ class _HomeContentState extends State<HomeContent> {
                     Expanded(
                       child: GridView.builder(
                         itemCount: filtered.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 12,
-                              crossAxisSpacing: 12,
-                              childAspectRatio: 3 / 3.0,
-                            ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 3 / 3.3,
+                        ),
                         itemBuilder: (context, index) {
                           final menu = filtered[index];
-
                           return GestureDetector(
                             onTap:
                                 menu.status == 'Habis'
                                     ? null
-                                    : () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (_) => DetailMenuPage(
-                                                menuId: menu.id,
-                                              ),
-                                        ),
-                                      );
-                                    },
+                                    : () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) =>
+                                                DetailMenuPage(menuId: menu.id),
+                                      ),
+                                    ),
                             child: Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
@@ -195,7 +202,7 @@ class _HomeContentState extends State<HomeContent> {
                                               menu.status == 'Habis' ? 0.5 : 1,
                                           child: Image.network(
                                             menu.imageUrl,
-                                            height: 100,
+                                            height: screenWidth * 0.25,
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                             errorBuilder:
@@ -207,7 +214,7 @@ class _HomeContentState extends State<HomeContent> {
                                         ),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.all(8),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -223,7 +230,6 @@ class _HomeContentState extends State<HomeContent> {
                                             Text(
                                               menu.jenis,
                                               style: GoogleFonts.inter(
-                                                fontWeight: FontWeight.w200,
                                                 fontSize: 10,
                                               ),
                                             ),

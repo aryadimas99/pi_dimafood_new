@@ -9,206 +9,242 @@ class KelolaPesananPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream:
-          FirebaseFirestore.instance
-              .collection('pesanan')
-              .where('status', isNotEqualTo: 'Selesai')
-              .orderBy('status')
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('Tidak ada pesanan.'));
-        }
+        return StreamBuilder<QuerySnapshot>(
+          stream:
+              FirebaseFirestore.instance
+                  .collection('pesanan')
+                  .where('status', isNotEqualTo: 'Selesai')
+                  .orderBy('status')
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        final pesananList = snapshot.data!.docs;
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text('Tidak ada pesanan.'));
+            }
 
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          itemCount: pesananList.length,
-          itemBuilder: (context, index) {
-            final pesanan = pesananList[index];
-            final items = pesanan['items'] as List<dynamic>;
-            final status = pesanan['status'];
-            final timestamp = pesanan['timestamp'] as Timestamp;
-            final date = DateFormat(
-              'dd MMM yyyy – HH.mm',
-            ).format(timestamp.toDate());
-            final orderCode = pesanan['orderCode'];
-            final totalHarga = pesanan['totalPrice'];
-            final totalBayar = pesanan['totalPembayaran'];
-            final kodePembayaran = pesanan['kodePembayaran'];
-            final alamat = pesanan['alamat'];
-            final noTelp = pesanan['nomorTelepon'];
-            final statusInfo = _getStatusInfo(status);
+            final pesananList = snapshot.data!.docs;
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 20),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // HEADER
-                  Row(
-                    children: [
-                      Text(
-                        'DimaFood',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                          fontSize: 20,
-                        ),
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              itemCount: pesananList.length,
+              itemBuilder: (context, index) {
+                final pesanan = pesananList[index];
+                final items = pesanan['items'] as List<dynamic>;
+                final status = pesanan['status'];
+                final timestamp = pesanan['timestamp'] as Timestamp;
+                final date = DateFormat(
+                  'dd MMM yyyy – HH.mm',
+                ).format(timestamp.toDate());
+                final orderCode = pesanan['orderCode'];
+                final totalHarga = pesanan['totalPrice'];
+                final totalBayar = pesanan['totalPembayaran'];
+                final kodePembayaran = pesanan['kodePembayaran'];
+                final alamat = pesanan['alamat'];
+                final noTelp = pesanan['nomorTelepon'];
+                final statusInfo = _getStatusInfo(status);
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(13),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
-                      const Spacer(),
-                      status == 'Selesai'
-                          ? SvgPicture.asset(
-                            'lib/assets/icons/tick-circle.svg',
-                            height: 18,
-                          )
-                          : SvgPicture.asset(
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'DimaFood',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue,
+                              fontSize: isSmallScreen ? 16 : 20,
+                            ),
+                          ),
+                          const Spacer(),
+                          SvgPicture.asset(
                             statusInfo.iconPath!,
-                            height: 18,
+                            height: isSmallScreen ? 16 : 18,
                             colorFilter: ColorFilter.mode(
                               statusInfo.color,
                               BlendMode.srcIn,
                             ),
                           ),
-                      const SizedBox(width: 6),
-                      Text(
-                        status,
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500,
-                          color: statusInfo.color,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 4),
-                  Text(date, style: GoogleFonts.inter(fontSize: 12)),
-                  Text(
-                    'ORDER - $orderCode',
-                    style: GoogleFonts.inter(fontSize: 12),
-                  ),
-
-                  const Divider(height: 24),
-
-                  // ITEMS
-                  ...items.map(
-                    (item) => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${item['quantity']}x ${item['name']}',
-                          style: GoogleFonts.inter(fontSize: 12),
-                        ),
-                        Text(
-                          _formatCurrency(item['price']),
-                          style: GoogleFonts.inter(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const Divider(height: 24),
-
-                  _buildRow('Jumlah', _formatCurrency(totalHarga)),
-                  _buildRow('Kode Pembayaran', '$kodePembayaran'),
-                  _buildRow('Total Pembayaran', _formatCurrency(totalBayar)),
-
-                  const SizedBox(height: 12),
-
-                  // ALAMAT & TELPON
-                  Text(
-                    'Alamat Pengantaran:',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                  Text(alamat, style: GoogleFonts.inter(fontSize: 12)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        'lib/assets/icons/call.svg',
-                        height: 18,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.blue,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        noTelp,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // DROPDOWN UPDATE STATUS
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        dividerColor: Colors.transparent,
-                        visualDensity: VisualDensity.compact,
-                      ),
-                      child: ExpansionTile(
-                        tilePadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 2,
-                        ),
-                        childrenPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        iconColor: Colors.black54,
-                        collapsedIconColor: Colors.black54,
-                        title: Text(
-                          'Update Status',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                          const SizedBox(width: 6),
+                          Text(
+                            status,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w500,
+                              fontSize: isSmallScreen ? 10 : 12,
+                              color: statusInfo.color,
+                            ),
                           ),
-                        ),
-                        children: [
-                          _statusOption(context, pesanan.id, 'Sedang Diproses'),
-                          _statusOption(context, pesanan.id, 'Sedang Diantar'),
-                          _statusOption(context, pesanan.id, 'Selesai'),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Text(
+                        date,
+                        style: GoogleFonts.inter(
+                          fontSize: isSmallScreen ? 10 : 12,
+                        ),
+                      ),
+                      Text(
+                        'ORDER - $orderCode',
+                        style: GoogleFonts.inter(
+                          fontSize: isSmallScreen ? 10 : 12,
+                        ),
+                      ),
+                      const Divider(height: 24),
+                      ...items.map(
+                        (item) => Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${item['quantity']}x ${item['name']}',
+                                style: GoogleFonts.inter(
+                                  fontSize: isSmallScreen ? 10 : 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatCurrency(item['price']),
+                              style: GoogleFonts.inter(
+                                fontSize: isSmallScreen ? 10 : 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 24),
+                      _buildRow(
+                        'Jumlah',
+                        _formatCurrency(totalHarga),
+                        isSmallScreen,
+                      ),
+                      _buildRow(
+                        'Kode Pembayaran',
+                        '$kodePembayaran',
+                        isSmallScreen,
+                      ),
+                      _buildRow(
+                        'Total Pembayaran',
+                        _formatCurrency(totalBayar),
+                        isSmallScreen,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Alamat Pengantaran:',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: isSmallScreen ? 10 : 12,
+                        ),
+                      ),
+                      Text(
+                        alamat,
+                        style: GoogleFonts.inter(
+                          fontSize: isSmallScreen ? 10 : 12,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'lib/assets/icons/call.svg',
+                            height: isSmallScreen ? 16 : 18,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.blue,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            noTelp,
+                            style: GoogleFonts.inter(
+                              fontSize: isSmallScreen ? 10 : 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          child: ExpansionTile(
+                            tilePadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 2,
+                            ),
+                            childrenPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            iconColor: Colors.black54,
+                            collapsedIconColor: Colors.black54,
+                            title: Text(
+                              'Update Status',
+                              style: GoogleFonts.inter(
+                                fontSize: isSmallScreen ? 11 : 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            children: [
+                              _statusOption(
+                                context,
+                                pesanan.id,
+                                'Sedang Diproses',
+                                isSmallScreen,
+                              ),
+                              _statusOption(
+                                context,
+                                pesanan.id,
+                                'Sedang Diantar',
+                                isSmallScreen,
+                              ),
+                              _statusOption(
+                                context,
+                                pesanan.id,
+                                'Selesai',
+                                isSmallScreen,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -216,29 +252,38 @@ class KelolaPesananPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildRow(String label, String value, bool isSmall) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+          style: GoogleFonts.inter(
+            fontSize: isSmall ? 10 : 12,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w400),
+          style: GoogleFonts.inter(
+            fontSize: isSmall ? 10 : 12,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ],
     );
   }
 
-  Widget _statusOption(BuildContext context, String docId, String newStatus) {
+  Widget _statusOption(
+    BuildContext context,
+    String docId,
+    String newStatus,
+    bool isSmall,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
-        hoverColor: Colors.purple[100],
-        splashColor: Colors.purple[200],
         onTap: () async {
           try {
             await FirebaseFirestore.instance
@@ -247,14 +292,14 @@ class KelolaPesananPage extends StatelessWidget {
                 .update({'status': newStatus});
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Status berhasil diperbarui')),
+                const SnackBar(content: Text('Status berhasil diperbarui')),
               );
             }
-          } catch (e) {
+          } catch (_) {
             if (context.mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Gagal update status')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Gagal update status')),
+              );
             }
           }
         },
@@ -264,7 +309,7 @@ class KelolaPesananPage extends StatelessWidget {
           child: Text(
             newStatus,
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: isSmall ? 11 : 13,
               fontWeight: FontWeight.w500,
               color: Colors.black87,
             ),

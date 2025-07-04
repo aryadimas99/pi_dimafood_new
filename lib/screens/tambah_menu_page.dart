@@ -1,7 +1,8 @@
+// file: tambah_menu_page.dart
+
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -75,7 +76,7 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
         _selectedKategori == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Harap lengkapi semua data dan pilih gambar'),
+          content: Text('Harap lengkapi semua data & pilih gambar'),
         ),
       );
       return;
@@ -99,7 +100,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
       });
 
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Menu berhasil ditambahkan!'),
@@ -131,6 +131,8 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -142,7 +144,7 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(screenWidth * 0.04),
         child: Form(
           key: _formKey,
           child: Container(
@@ -189,19 +191,20 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Dropdown kategori
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
                           labelText: 'Kategori',
                           border: OutlineInputBorder(),
                         ),
                         items:
-                            ['Makanan', 'Minuman', 'Dessert'].map((kat) {
-                              return DropdownMenuItem(
-                                value: kat,
-                                child: Text(kat),
-                              );
-                            }).toList(),
+                            ['Makanan', 'Minuman', 'Dessert']
+                                .map(
+                                  (kat) => DropdownMenuItem(
+                                    value: kat,
+                                    child: Text(kat),
+                                  ),
+                                )
+                                .toList(),
                         value: _selectedKategori,
                         onChanged:
                             (val) => setState(() => _selectedKategori = val),
@@ -219,19 +222,20 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                       _buildField(_ratingController, 'Rating:', 'Contoh: 4.5'),
                       const SizedBox(height: 12),
 
-                      // Dropdown status
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
                           labelText: 'Status',
                           border: OutlineInputBorder(),
                         ),
                         items:
-                            ['Tersedia', 'Habis'].map((status) {
-                              return DropdownMenuItem(
-                                value: status,
-                                child: Text(status),
-                              );
-                            }).toList(),
+                            ['Tersedia', 'Habis']
+                                .map(
+                                  (status) => DropdownMenuItem(
+                                    value: status,
+                                    child: Text(status),
+                                  ),
+                                )
+                                .toList(),
                         value: _selectedStatus,
                         onChanged:
                             (val) => setState(() => _selectedStatus = val),

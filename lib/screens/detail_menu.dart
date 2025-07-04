@@ -89,7 +89,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                 child: Image.network(
                   imageUrl,
                   width: double.infinity,
-                  height: 280,
+                  height: MediaQuery.of(context).size.width * 0.7,
                   fit: BoxFit.cover,
                   errorBuilder:
                       (context, error, stackTrace) =>
@@ -138,7 +138,6 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                 ),
               ),
               child: ListView(
-                padding: const EdgeInsets.only(top: 10, bottom: 5),
                 children: [
                   const SizedBox(height: 8),
                   Text(
@@ -239,8 +238,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                   Text(
                     'Catatan Tambahan',
                     style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600,
                       fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -277,7 +276,6 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           decoration: BoxDecoration(
@@ -307,66 +305,66 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                             ],
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (selectedSize.isEmpty || quantity < 1) {
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (selectedSize.isEmpty || quantity < 1) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Pilih ukuran dan jumlah terlebih dahulu!',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final cartItem = CartItem(
+                                id: title,
+                                title: title,
+                                image: imageUrl,
+                                price: getAdjustedPrice().toString(),
+                                size: selectedSize,
+                                notes: noteController.text,
+                                quantity: quantity,
+                              );
+
+                              Provider.of<CartController>(
+                                context,
+                                listen: false,
+                              ).addToCart(cartItem);
+
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    'Pilih ukuran dan jumlah terlebih dahulu!',
+                                    '$title berhasil ditambahkan ke keranjang',
                                   ),
                                 ),
                               );
-                              return;
-                            }
-
-                            final cartItem = CartItem(
-                              id: title,
-                              title: title,
-                              image: imageUrl,
-                              price: getAdjustedPrice().toString(),
-                              size: selectedSize,
-                              notes: noteController.text,
-                              quantity: quantity,
-                            );
-
-                            Provider.of<CartController>(
-                              context,
-                              listen: false,
-                            ).addToCart(cartItem);
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '$title berhasil ditambahkan ke keranjang',
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                250,
+                                21,
+                                21,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                  color: Color.fromARGB(255, 0, 127, 254),
                                 ),
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              250,
-                              21,
-                              21,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: const BorderSide(
-                                color: Color.fromARGB(255, 0, 127, 254),
+                            child: Text(
+                              'Tambah ke Keranjang',
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 14,
-                            ),
-                          ),
-                          child: Text(
-                            'Tambah ke Keranjang',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
                             ),
                           ),
                         ),

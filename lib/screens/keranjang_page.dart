@@ -25,9 +25,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
     if (cartController.items.isEmpty) {
       phoneController.clear();
       addressController.clear();
-      setState(() {
-        selectedPayment = null;
-      });
+      setState(() => selectedPayment = null);
     }
   }
 
@@ -35,6 +33,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
   Widget build(BuildContext context) {
     final cartController = Provider.of<CartController>(context);
     final items = cartController.items;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -70,73 +69,75 @@ class _KeranjangPageState extends State<KeranjangPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...items.map((item) => _buildCartItem(item, cartController)),
-            const SizedBox(height: 24),
-            _buildInputCard(
-              iconPath: 'lib/assets/icons/call.svg',
-              title: 'Nomor Telepon',
-              child: TextField(
-                controller: phoneController,
-                decoration: _inputDecoration('+6288818882888'),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: screenWidth),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...items.map((item) => _buildCartItem(item, cartController)),
+              const SizedBox(height: 24),
+              _buildInputCard(
+                iconPath: 'lib/assets/icons/call.svg',
+                title: 'Nomor Telepon',
+                child: TextField(
+                  controller: phoneController,
+                  decoration: _inputDecoration('+6288818882888'),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildInputCard(
-              iconPath: 'lib/assets/icons/location.svg',
-              title: 'Alamat Pengantaran',
-              child: TextField(
-                controller: addressController,
-                onChanged: (value) {
-                  Provider.of<CartController>(
-                    context,
-                    listen: false,
-                  ).setAlamat(value);
-                },
-                decoration: _inputDecoration('Masukkan alamat lengkap'),
+              const SizedBox(height: 16),
+              _buildInputCard(
+                iconPath: 'lib/assets/icons/location.svg',
+                title: 'Alamat Pengantaran',
+                child: TextField(
+                  controller: addressController,
+                  onChanged: (value) {
+                    Provider.of<CartController>(
+                      context,
+                      listen: false,
+                    ).setAlamat(value);
+                  },
+                  decoration: _inputDecoration('Masukkan alamat lengkap'),
+                ),
               ),
-            ),
-
-            const SizedBox(height: 16),
-            _buildPaymentMethod(),
-            const SizedBox(height: 16),
-            _buildSummary(items, cartController.totalPrice),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => InformasiPembayaranPage(
-                            metodePembayaran: selectedPayment ?? 'DANA',
-                            nomorTelepon: phoneController.text,
-                          ),
+              const SizedBox(height: 16),
+              _buildPaymentMethod(),
+              const SizedBox(height: 16),
+              _buildSummary(items, cartController.totalPrice),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => InformasiPembayaranPage(
+                              metodePembayaran: selectedPayment ?? 'DANA',
+                              nomorTelepon: phoneController.text,
+                            ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 0, 127, 254),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 0, 127, 254),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-                child: Text(
-                  'Lanjut Pembayaran',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                  child: Text(
+                    'Lanjut Pembayaran',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -165,89 +166,80 @@ class _KeranjangPageState extends State<KeranjangPage> {
         border: Border.all(color: const Color.fromARGB(255, 0, 127, 254)),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Size: ${item.size}',
-                      style: GoogleFonts.inter(fontSize: 10),
-                    ),
-                    Text(
-                      'Notes: ${item.notes}',
-                      style: GoogleFonts.inter(fontSize: 10),
-                    ),
-                    Text(
-                      '${item.price}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 80),
-            ],
-          ),
-          Positioned(
-            top: -10,
-            right: 34,
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'lib/assets/icons/trash.svg',
-                width: 18,
-                colorFilter: const ColorFilter.mode(
-                  Colors.red,
-                  BlendMode.srcIn,
-                ),
-              ),
-              onPressed: () => controller.removeFromCart(item.id),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  onPressed: () => controller.decrementQuantity(item.id),
-                  icon: SvgPicture.asset(
-                    'lib/assets/icons/minus-square.svg',
-                    width: 24,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                Text(
+                  item.title,
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    '${item.quantity}',
-                    style: GoogleFonts.inter(fontSize: 12),
-                  ),
+                Text(
+                  'Size: ${item.size}',
+                  style: GoogleFonts.inter(fontSize: 10),
                 ),
-                IconButton(
-                  onPressed: () => controller.incrementQuantity(item.id),
-                  icon: SvgPicture.asset(
-                    'lib/assets/icons/add-square.svg',
-                    width: 24,
+                Text(
+                  'Notes: ${item.notes}',
+                  style: GoogleFonts.inter(fontSize: 10),
+                ),
+                Text(
+                  item.price,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
+          ),
+          Column(
+            children: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'lib/assets/icons/trash.svg',
+                  width: 18,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.red,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                onPressed: () => controller.removeFromCart(item.id),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => controller.decrementQuantity(item.id),
+                    icon: SvgPicture.asset(
+                      'lib/assets/icons/minus-square.svg',
+                      width: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      '${item.quantity}',
+                      style: GoogleFonts.inter(fontSize: 12),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => controller.incrementQuantity(item.id),
+                    icon: SvgPicture.asset(
+                      'lib/assets/icons/add-square.svg',
+                      width: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -320,11 +312,8 @@ class _KeranjangPageState extends State<KeranjangPage> {
               ),
               value: method,
               groupValue: selectedPayment,
-              onChanged: (value) {
-                setState(() {
-                  selectedPayment = value.toString();
-                });
-              },
+              onChanged:
+                  (value) => setState(() => selectedPayment = value.toString()),
             ),
           ),
         ],
@@ -351,7 +340,13 @@ class _KeranjangPageState extends State<KeranjangPage> {
             (item) => Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${item.quantity}x ${item.title}'),
+                Flexible(
+                  child: Text(
+                    '${item.quantity}x ${item.title}',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
                 Text(item.price),
               ],
             ),

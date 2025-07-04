@@ -11,11 +11,12 @@ class AdminPesananPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return StreamBuilder<QuerySnapshot>(
       stream:
           FirebaseFirestore.instance
               .collection('pesanan')
-              // .where('status', isNotEqualTo: 'Selesai')
               .orderBy('timestamp', descending: true)
               .snapshots(),
       builder: (context, snapshot) {
@@ -30,7 +31,10 @@ class AdminPesananPage extends StatelessWidget {
         final pesananList = snapshot.data!.docs;
 
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.04,
+            vertical: 16,
+          ),
           itemCount: pesananList.length,
           itemBuilder: (context, index) {
             final pesanan = pesananList[index];
@@ -51,7 +55,7 @@ class AdminPesananPage extends StatelessWidget {
 
             return Container(
               margin: const EdgeInsets.only(bottom: 20),
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(screenWidth * 0.04),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Colors.blue),
@@ -67,19 +71,21 @@ class AdminPesananPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
+                  // HEADER
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'DimaFood',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                          fontSize: 20,
+                      Expanded(
+                        child: Text(
+                          'DimaFood',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
+                            fontSize: 20,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Spacer(),
                       SvgPicture.asset(
                         statusInfo.iconPath,
                         height: 18,
@@ -89,15 +95,20 @@ class AdminPesananPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        status,
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w500,
-                          color: statusInfo.color,
+                      Flexible(
+                        child: Text(
+                          status,
+                          style: GoogleFonts.inter(
+                            color: statusInfo.color,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 4),
                   Text(date, style: GoogleFonts.inter(fontSize: 12)),
                   Text(
@@ -106,14 +117,17 @@ class AdminPesananPage extends StatelessWidget {
                   ),
                   const Divider(height: 24),
 
-                  // Items
+                  // ITEMS
                   ...items.map(
                     (item) => Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${item['quantity']}x ${item['name']}',
-                          style: GoogleFonts.inter(fontSize: 12),
+                        Expanded(
+                          child: Text(
+                            '${item['quantity']}x ${item['name']}',
+                            style: GoogleFonts.inter(fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Text(
                           _formatCurrency(item['price']),
@@ -149,12 +163,15 @@ class AdminPesananPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        noTelp,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.blue,
+                      Expanded(
+                        child: Text(
+                          noTelp,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.blue,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

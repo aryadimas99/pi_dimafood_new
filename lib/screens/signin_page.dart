@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pi_dimafood_new/screens/signup_page.dart';
@@ -17,10 +16,8 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   bool _isObscure = true;
   bool _isLoading = false;
-
   final AuthService _authService = AuthService();
 
   void _resetFields() {
@@ -29,38 +26,28 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _loginUser() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
-    User? user = await _authService.loginUser(
+    final user = await _authService.loginUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
     );
 
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
 
     if (user != null) {
-      String? role = await _authService.getUserRole(user.uid);
-
+      final role = await _authService.getUserRole(user.uid);
       if (!mounted) return;
-
-      if (role == "admin") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminHomePage()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => role == "admin" ? const AdminHomePage() : const HomePage(),
+        ),
+      );
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -98,6 +85,8 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: LayoutBuilder(
@@ -116,14 +105,11 @@ class _SignInPageState extends State<SignInPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 180,
-                      height: 180,
+                      width: screenWidth * 0.45,
+                      height: screenWidth * 0.45,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 0, 127, 254),
-                          width: 1,
-                        ),
+                        border: Border.all(color: const Color(0xFF007FFE)),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: ClipOval(
@@ -135,7 +121,6 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                     const SizedBox(height: 50),
 
-                    // Email
                     buildInputField(
                       controller: _emailController,
                       hint: "Masukkan Email Anda",
@@ -143,33 +128,23 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Password
                     buildInputField(
                       controller: _passwordController,
                       hint: "Masukkan Password",
                       iconPath: 'lib/assets/icons/Vector.svg',
                       obscureText: _isObscure,
-                      toggleObscure: () {
-                        setState(() {
-                          _isObscure = !_isObscure;
-                        });
-                      },
+                      toggleObscure:
+                          () => setState(() => _isObscure = !_isObscure),
                     ),
                     const SizedBox(height: 60),
 
-                    // LOG IN button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _loginUser,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            0,
-                            127,
-                            254,
-                          ),
+                          backgroundColor: const Color(0xFF007FFE),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -198,18 +173,17 @@ class _SignInPageState extends State<SignInPage> {
                           style: GoogleFonts.inter(),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const SignUpPage(),
+                          onTap:
+                              () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SignUpPage(),
+                                ),
                               ),
-                            );
-                          },
                           child: Text(
                             'Sign Up',
                             style: GoogleFonts.inter(
-                              color: const Color.fromARGB(255, 0, 127, 254),
+                              color: const Color(0xFF007FFE),
                             ),
                           ),
                         ),
@@ -257,18 +231,18 @@ class _SignInPageState extends State<SignInPage> {
                   onPressed: toggleObscure,
                   icon: Icon(
                     obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: const Color.fromARGB(255, 127, 144, 159),
+                    color: const Color(0xFF7F909F),
                   ),
                 )
                 : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Color.fromARGB(255, 0, 127, 254)),
+          borderSide: const BorderSide(color: Color(0xFF007FFE)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Color.fromARGB(255, 0, 127, 254)),
+          borderSide: const BorderSide(color: Color(0xFF007FFE)),
         ),
       ),
     );

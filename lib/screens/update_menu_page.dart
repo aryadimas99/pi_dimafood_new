@@ -1,3 +1,5 @@
+// file: update_menu_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -182,6 +184,8 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -195,7 +199,10 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
-          margin: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+          margin: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.04,
+            vertical: 20,
+          ),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.blue),

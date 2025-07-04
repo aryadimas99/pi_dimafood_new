@@ -11,277 +11,231 @@ class PesananPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String userId = FirebaseAuth.instance.currentUser!.uid;
-    print("DEBUG: UID saat ini => $userId");
 
     return Scaffold(
-      // Hilangkan AppBar sepenuhnya untuk menghindari jarak atas
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Custom AppBar Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-            // Content
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream:
-                    FirebaseFirestore.instance
-                        .collection('pesanan')
-                        .where('userId', isEqualTo: userId)
-                        .where('status', isNotEqualTo: 'Selesai')
-                        .orderBy('timestamp', descending: true)
-                        .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+        child: StreamBuilder<QuerySnapshot>(
+          stream:
+              FirebaseFirestore.instance
+                  .collection('pesanan')
+                  .where('userId', isEqualTo: userId)
+                  .where('status', isNotEqualTo: 'Selesai')
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text('Belum ada pesanan.'));
+            }
+            final pesananList = snapshot.data!.docs;
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text('Belum ada pesanan.'));
-                  }
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              physics: const ClampingScrollPhysics(),
+              itemCount: pesananList.length,
+              itemBuilder: (context, index) {
+                final pesanan = pesananList[index];
+                final List<dynamic> items = pesanan['items'] ?? [];
+                final status = pesanan['status']?.toString() ?? '-';
+                final timestamp = pesanan['timestamp'] as Timestamp;
+                final date = DateFormat(
+                  'dd MMM yyyy – HH.mm',
+                ).format(timestamp.toDate());
+                final orderCode = pesanan['orderCode']?.toString() ?? '-';
+                final kodePembayaran =
+                    pesanan['kodePembayaran']?.toString() ?? '-';
+                final totalHarga = pesanan['totalPrice'] ?? 0;
+                final totalBayar = pesanan['totalPembayaran'] ?? 0;
+                final alamat = pesanan['alamat']?.toString() ?? '-';
+                final noTelp = pesanan['nomorTelepon']?.toString() ?? '-';
 
-                  final pesananList = snapshot.data!.docs;
+                final statusInfo = _getStatusInfo(status);
 
-                  return ListView.builder(
-                    // Hilangkan semua padding default
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    physics:
-                        const ClampingScrollPhysics(), // Hilangkan bounce effect
-                    itemCount: pesananList.length,
-                    itemBuilder: (context, index) {
-                      final pesanan = pesananList[index];
-                      final List<dynamic> items = pesanan['items'] ?? [];
-                      final status = pesanan['status'] ?? '-';
-                      final timestamp = pesanan['timestamp'] as Timestamp;
-                      final date = DateFormat(
-                        'dd MMM yyyy – HH.mm',
-                      ).format(timestamp.toDate());
-                      final orderCode = pesanan['orderCode'] ?? '-';
-                      final kodePembayaran = pesanan['kodePembayaran'] ?? '-';
-                      final totalHarga = pesanan['totalPrice'] ?? 0;
-                      final totalBayar = pesanan['totalPembayaran'] ?? 0;
-                      final alamat = pesanan['alamat'] ?? '-';
-                      final noTelp = pesanan['nomorTelepon'] ?? '-';
-
-                      final statusInfo = _getStatusInfo(status);
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(13),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(13),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'DimaFood',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue,
+                                fontSize: 20,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ],
+                          ),
+                          SvgPicture.asset(
+                            statusInfo.iconPath,
+                            height: 18,
+                            colorFilter: ColorFilter.mode(
+                              statusInfo.color,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              status,
+                              style: GoogleFonts.inter(
+                                color: statusInfo.color,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 4),
+                      Text(
+                        date,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      ),
+                      Text(
+                        orderCode,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const Divider(height: 24),
+
+                      ...items.map(
+                        (item) => Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Header
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'DimaFood',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blue,
-                                    fontSize: 20,
-                                  ),
+                            Flexible(
+                              child: Text(
+                                '${item['quantity']}x ${item['name']}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
                                 ),
-                                const Spacer(),
-                                SvgPicture.asset(
-                                  statusInfo.iconPath,
-                                  height: 18,
-                                  colorFilter: ColorFilter.mode(
-                                    statusInfo.color,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  status,
-                                  style: GoogleFonts.inter(
-                                    color: statusInfo.color,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            const SizedBox(height: 4),
                             Text(
-                              date,
+                              _formatCurrency(item['price'] ?? 0),
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                               ),
-                            ),
-                            Text(
-                              '$orderCode',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const Divider(height: 24),
-
-                            // Items
-                            ...items.map(
-                              (item) => Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${item['quantity']}x ${item['name']}',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                  Text(
-                                    _formatCurrency(item['price']),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Divider(height: 24),
-
-                            // Summary
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Jumlah',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  _formatCurrency(totalHarga),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 2),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Kode Pembayaran',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '$kodePembayaran',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 2),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Total Pembayaran',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  _formatCurrency(totalBayar),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-
-                            Text(
-                              'Alamat Pengantaran:',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              alamat,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'lib/assets/icons/call.svg',
-                                  height: 18,
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.blue,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-
-                                const SizedBox(width: 6),
-                                Text(
-                                  noTelp,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ],
                             ),
                           ],
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+                      ),
+                      const Divider(height: 24),
+
+                      _buildRow('Jumlah', _formatCurrency(totalHarga)),
+                      _buildRow('Kode Pembayaran', kodePembayaran),
+                      _buildRow(
+                        'Total Pembayaran',
+                        _formatCurrency(totalBayar),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Text(
+                        'Alamat Pengantaran:',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        alamat,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'lib/assets/icons/call.svg',
+                            height: 18,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.blue,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              noTelp,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );
   }
 
+  Widget _buildRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w400),
+          ),
+        ),
+      ],
+    );
+  }
+
   String _formatCurrency(num value) {
-    final format = NumberFormat.currency(
+    return NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
       decimalDigits: 0,
-    );
-    return format.format(value);
+    ).format(value);
   }
 
   _StatusInfo _getStatusInfo(String status) {
@@ -301,6 +255,5 @@ class PesananPage extends StatelessWidget {
 class _StatusInfo {
   final String iconPath;
   final Color color;
-
   _StatusInfo(this.iconPath, this.color);
 }
