@@ -39,15 +39,19 @@ class _KelolaMenuPageState extends State<KelolaMenuPage> {
                   onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
                     hintText: 'Cari makanan atau minuman...',
-                    hintStyle: GoogleFonts.poppins(),
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     prefixIcon: Padding(
                       padding: const EdgeInsets.all(12),
                       child: SvgPicture.asset(
                         'lib/assets/icons/search-normal.svg',
-                        width: 24,
-                        height: 24,
+                        width: 20,
+                        height: 20,
                         colorFilter: const ColorFilter.mode(
                           Colors.blue,
                           BlendMode.srcIn,
@@ -93,12 +97,14 @@ class _KelolaMenuPageState extends State<KelolaMenuPage> {
                       );
                     }
 
-                    final List<MenuModel> menuList =
+                    final menuList =
                         snapshot.data!.docs
-                            .map((doc) {
-                              final data = doc.data() as Map<String, dynamic>;
-                              return MenuModel.fromFirestore(doc.id, data);
-                            })
+                            .map(
+                              (doc) => MenuModel.fromFirestore(
+                                doc.id,
+                                doc.data() as Map<String, dynamic>,
+                              ),
+                            )
                             .where(
                               (menu) => menu.nama.toLowerCase().contains(
                                 searchQuery.toLowerCase(),
@@ -165,8 +171,8 @@ class _KelolaMenuPageState extends State<KelolaMenuPage> {
                                 ),
                               ),
                               GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
+                                onTap: () async {
+                                  final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder:
@@ -179,6 +185,10 @@ class _KelolaMenuPageState extends State<KelolaMenuPage> {
                                           ),
                                     ),
                                   );
+
+                                  if (result == true) {
+                                    // No need to refresh manually, StreamBuilder auto updates!
+                                  }
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
@@ -213,12 +223,11 @@ class _KelolaMenuPageState extends State<KelolaMenuPage> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TambahMenuPage()),
-          );
-        },
+        onPressed:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TambahMenuPage()),
+            ),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

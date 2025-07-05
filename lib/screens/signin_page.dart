@@ -5,6 +5,7 @@ import 'package:pi_dimafood_new/screens/signup_page.dart';
 import 'package:pi_dimafood_new/services/auth_service.dart';
 import 'package:pi_dimafood_new/screens/admin_home_page.dart';
 import 'package:pi_dimafood_new/screens/home_page.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -48,38 +49,16 @@ class _SignInPageState extends State<SignInPage> {
       );
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 12),
-              Text(
-                "Email atau password salah",
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red[700],
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(15),
-          duration: const Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'OK',
-            textColor: Colors.white,
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              _resetFields();
-            },
-          ),
-        ),
-      );
+      Flushbar(
+        message: "Email atau password salah",
+        duration: const Duration(seconds: 4),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red[700]!,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
+      _resetFields();
     }
   }
 

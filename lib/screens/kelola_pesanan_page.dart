@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class KelolaPesananPage extends StatelessWidget {
   const KelolaPesananPage({super.key});
@@ -25,7 +26,6 @@ class KelolaPesananPage extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return const Center(child: Text('Tidak ada pesanan.'));
             }
@@ -291,15 +291,27 @@ class KelolaPesananPage extends StatelessWidget {
                 .doc(docId)
                 .update({'status': newStatus});
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Status berhasil diperbarui')),
-              );
+              Flushbar(
+                message: 'Status berhasil diperbarui',
+                duration: const Duration(seconds: 3),
+                margin: const EdgeInsets.all(15),
+                borderRadius: BorderRadius.circular(10),
+                backgroundColor: Colors.green,
+                icon: const Icon(Icons.check_circle, color: Colors.white),
+                flushbarPosition: FlushbarPosition.TOP,
+              ).show(context);
             }
           } catch (_) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Gagal update status')),
-              );
+              Flushbar(
+                message: 'Gagal update status',
+                duration: const Duration(seconds: 3),
+                margin: const EdgeInsets.all(15),
+                borderRadius: BorderRadius.circular(10),
+                backgroundColor: Colors.red,
+                icon: const Icon(Icons.error_outline, color: Colors.white),
+                flushbarPosition: FlushbarPosition.TOP,
+              ).show(context);
             }
           }
         },

@@ -6,6 +6,7 @@ import 'package:pi_dimafood_new/models/cart_item.dart';
 import 'package:pi_dimafood_new/controllers/cart_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class DetailMenuPage extends StatefulWidget {
   final String menuId;
@@ -61,6 +62,18 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
         isLoading = false;
       });
     }
+  }
+
+  void _showFlushbar(String message, Color color) {
+    Flushbar(
+      message: message,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(15),
+      borderRadius: BorderRadius.circular(10),
+      backgroundColor: color,
+      icon: Icon(Icons.info_outline, color: Colors.white),
+      flushbarPosition: FlushbarPosition.TOP,
+    ).show(context);
   }
 
   @override
@@ -310,12 +323,9 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                           child: ElevatedButton(
                             onPressed: () {
                               if (selectedSize.isEmpty || quantity < 1) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Pilih ukuran dan jumlah terlebih dahulu!',
-                                    ),
-                                  ),
+                                _showFlushbar(
+                                  'Pilih ukuran dan jumlah terlebih dahulu!',
+                                  Colors.red,
                                 );
                                 return;
                               }
@@ -335,12 +345,9 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                                 listen: false,
                               ).addToCart(cartItem);
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '$title berhasil ditambahkan ke keranjang',
-                                  ),
-                                ),
+                              _showFlushbar(
+                                '$title berhasil ditambahkan ke keranjang',
+                                Colors.green,
                               );
                             },
                             style: ElevatedButton.styleFrom(

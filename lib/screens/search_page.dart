@@ -104,11 +104,14 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
+              child: Image.network(
                 menu.imageUrl,
                 width: 60,
                 height: 60,
                 fit: BoxFit.cover,
+                errorBuilder:
+                    (context, error, stackTrace) =>
+                        const Icon(Icons.broken_image, color: Colors.grey),
               ),
             ),
             const SizedBox(width: 12),

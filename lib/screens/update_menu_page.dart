@@ -1,9 +1,8 @@
-// file: update_menu_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class UpdateMenuPage extends StatefulWidget {
   final String menuId;
@@ -70,13 +69,20 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
 
     if (newTitle.isEmpty || newCategory.isEmpty || newPriceInt == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap isi semua data dengan benar!')),
-      );
+      Flushbar(
+        message: 'Harap isi semua data dengan benar!',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
       return;
     }
 
     try {
+      debugPrint('🟢 Mulai update Firestore');
       await FirebaseFirestore.instance
           .collection('menu')
           .doc(widget.menuId)
@@ -86,17 +92,37 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
             'harga': newPriceInt,
             'status': selectedStatus,
           });
+      debugPrint('✅ Update Firestore sukses');
+      debugPrint('🆔 Update dokumen ID: ${widget.menuId}');
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Menu berhasil diperbarui!')),
-      );
-      Navigator.pop(context);
+
+      Flushbar(
+        message: 'Menu berhasil diperbarui!',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.green,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+        onStatusChanged: (status) {
+          if (status == FlushbarStatus.DISMISSED && mounted) {
+            Navigator.pop(context, true); // kirim true ke halaman sebelumnya
+          }
+        },
+      ).show(context);
     } catch (e) {
+      debugPrint('❌ Update Firestore error: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
+      Flushbar(
+        message: 'Terjadi kesalahan: $e',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
     }
   }
 
@@ -126,21 +152,42 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
     if (confirm != true || !mounted) return;
 
     try {
+      debugPrint('🟢 Mulai hapus Firestore');
       await FirebaseFirestore.instance
           .collection('menu')
           .doc(widget.menuId)
           .delete();
+      debugPrint('✅ Hapus Firestore sukses');
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Menu berhasil dihapus!')));
-      Navigator.pop(context);
+      Flushbar(
+        message: 'Menu berhasil dihapus!',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.green,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+        onStatusChanged: (status) {
+          if (status == FlushbarStatus.DISMISSED && mounted) {
+            Future.microtask(() {
+              Navigator.pop(context, true); // kirim true ke KelolaMenuPage
+            });
+          }
+        },
+      ).show(context);
     } catch (e) {
+      debugPrint('❌ Hapus Firestore error: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal menghapus: $e')));
+      Flushbar(
+        message: 'Gagal menghapus: $e',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
     }
   }
 

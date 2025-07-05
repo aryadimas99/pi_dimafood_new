@@ -1,5 +1,3 @@
-// file: tambah_menu_page.dart
-
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
@@ -8,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class TambahMenuPage extends StatefulWidget {
   const TambahMenuPage({super.key});
@@ -39,9 +38,7 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
       final path = result.files.single.path;
       if (path != null) {
         final file = File(path);
-        setState(() {
-          _selectedImage = file.readAsBytesSync();
-        });
+        setState(() => _selectedImage = file.readAsBytesSync());
       }
     }
   }
@@ -74,11 +71,16 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
     if (!_formKey.currentState!.validate() ||
         _selectedImage == null ||
         _selectedKategori == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Harap lengkapi semua data & pilih gambar'),
-        ),
-      );
+      if (!mounted) return;
+      Flushbar(
+        message: 'Harap lengkapi semua data & pilih gambar',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
       return;
     }
     setState(() => _isLoading = true);
@@ -100,20 +102,34 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
       });
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Menu berhasil ditambahkan!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      Navigator.pop(context);
+      Flushbar(
+        message: 'Menu berhasil ditambahkan!',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.green,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+        onStatusChanged: (status) {
+          if (status == FlushbarStatus.DISMISSED && mounted) {
+            Future.microtask(() {
+              Navigator.pop(context, true);
+            });
+          }
+        },
+      ).show(context);
     } catch (e) {
       debugPrint('❌ Gagal simpan: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Gagal menyimpan menu')));
+      Flushbar(
+        message: 'Gagal menyimpan menu',
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -190,7 +206,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                         isNumber: true,
                       ),
                       const SizedBox(height: 12),
-
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
                           labelText: 'Kategori',
@@ -212,7 +227,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                             (val) => val == null ? 'Pilih kategori' : null,
                       ),
                       const SizedBox(height: 12),
-
                       _buildField(
                         _descriptionController,
                         'Deskripsi:',
@@ -221,7 +235,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                       const SizedBox(height: 12),
                       _buildField(_ratingController, 'Rating:', 'Contoh: 4.5'),
                       const SizedBox(height: 12),
-
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
                           labelText: 'Status',
@@ -242,7 +255,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                         validator: (val) => val == null ? 'Pilih status' : null,
                       ),
                       const SizedBox(height: 12),
-
                       CheckboxListTile(
                         title: const Text('Tandai sebagai Menu Populer'),
                         value: _isPopuler,
@@ -250,7 +262,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                             (val) => setState(() => _isPopuler = val ?? false),
                       ),
                       const SizedBox(height: 12),
-
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
@@ -277,7 +288,6 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
                       SizedBox(
                         width: double.infinity,
                         height: 48,

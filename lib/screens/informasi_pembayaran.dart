@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../controllers/cart_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class InformasiPembayaranPage extends StatefulWidget {
   final String metodePembayaran;
@@ -50,20 +51,16 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
     final cartController = Provider.of<CartController>(context, listen: false);
 
     if (cartController.alamat.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Alamat tidak boleh kosong.")),
-      );
+      _showFlushbar("Alamat tidak boleh kosong.", Colors.red);
       return;
     }
 
     final userId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Siapkan list item
     final List<Map<String, dynamic>> items =
         cartController.items.map((item) {
           final cleanPrice =
               item.price.replaceAll("Rp", "").replaceAll(".", "").trim();
-
           return {
             'name': item.title,
             'price': int.parse(cleanPrice),
@@ -77,7 +74,7 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
       'status': 'Menunggu Konfirmasi',
       'timestamp': Timestamp.now(),
       'orderCode': kodeOrder,
-      'alamat': cartController.alamat, // Ganti kalau sudah pakai input alamat
+      'alamat': cartController.alamat,
       'nomorTelepon': widget.nomorTelepon,
       'metodePembayaran': widget.metodePembayaran,
       'kodePembayaran': kodePembayaran,
@@ -90,17 +87,27 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
     cartController.clearCart();
     cartController.setAlamat('');
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Pesanan berhasil dibuat!")));
+    _showFlushbar("Pesanan berhasil dibuat!", Colors.green);
 
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    });
+  }
+
+  void _showFlushbar(String message, Color color) {
+    Flushbar(
+      message: message,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(15),
+      borderRadius: BorderRadius.circular(10),
+      backgroundColor: color,
+      icon: Icon(Icons.info_outline, color: Colors.white),
+      flushbarPosition: FlushbarPosition.TOP,
+    ).show(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    // final cartController = Provider.of<CartController>(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -116,8 +123,6 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Box Transfer
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -161,12 +166,9 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
             if (widget.metodePembayaran != 'Cash On Delivery')
               _buildInfoField('Nomor Rekening Admin', rekeningAdmin),
-
             _buildInfoField('Nomor Telepon', widget.nomorTelepon),
             _buildInfoField('Nominal Pesanan', _formatCurrency(nominal)),
             _buildInfoField('Kode Order', kodeOrder),
@@ -175,9 +177,7 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
               'Total Pembayaran',
               _formatCurrency(totalPembayaran),
             ),
-
             const SizedBox(height: 70),
-
             Row(
               children: [
                 Expanded(
