@@ -115,7 +115,7 @@ class _InformasiPembayaranPageState extends State<InformasiPembayaranPage> {
         child: ListView(
           children: [
             Text(
-              'DimaFood',
+              'DIMAFOOD',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,

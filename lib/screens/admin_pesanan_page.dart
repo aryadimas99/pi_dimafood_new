@@ -1,5 +1,3 @@
-// file: admin_pesanan_page.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -77,7 +75,7 @@ class AdminPesananPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'DimaFood',
+                          'DIMAFOOD',
                           style: GoogleFonts.inter(
                             fontWeight: FontWeight.w600,
                             color: Colors.blue,

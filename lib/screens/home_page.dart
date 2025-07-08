@@ -38,9 +38,10 @@ class _HomePageState extends State<HomePage> {
           _selectedIndex == 0
               ? null
               : IconButton(
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Color.fromARGB(255, 0, 127, 254),
+                icon: SvgPicture.asset(
+                  'lib/assets/icons/arrow-circle-left.svg',
+                  height: 32,
+                  width: 32,
                 ),
                 onPressed: () {
                   setState(() {
@@ -48,11 +49,12 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
               ),
+
       titleSpacing: _selectedIndex == 0 ? null : 0,
       title:
           _selectedIndex == 0
               ? Text(
-                "DimaFood",
+                "DIMAFOOD",
                 style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -202,12 +204,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-// class OrderPage extends StatelessWidget {
-//   const OrderPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text("Halaman Pesanan Kosong"));
-//   }
-// }

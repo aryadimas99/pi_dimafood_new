@@ -186,9 +186,7 @@ class _KelolaMenuPageState extends State<KelolaMenuPage> {
                                     ),
                                   );
 
-                                  if (result == true) {
-                                    // No need to refresh manually, StreamBuilder auto updates!
-                                  }
+                                  if (result == true) {}
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(

@@ -72,7 +72,7 @@ class KelolaPesananPage extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            'DimaFood',
+                            'DIMAFOOD',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w600,
                               color: Colors.blue,

@@ -77,7 +77,7 @@ class PesananPage extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'DimaFood',
+                              'DIMAFOOD',
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w600,
                                 color: Colors.blue,

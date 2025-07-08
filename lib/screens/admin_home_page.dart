@@ -28,7 +28,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     const KelolaPesananPage(),
     const KelolaMenuPage(),
     const AdminPesananPage(),
-    const LogOutPage(), // sudah pakai halaman logout yang benar
+    const LogOutPage(),
   ];
 
   final List<String> iconPaths = [
@@ -69,7 +69,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     if (_selectedIndex == 0) {
       return AppBar(
         title: Text(
-          "DimaFood Admin",
+          "DIMAFOOD Admin",
           style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -84,12 +84,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Color.fromARGB(255, 0, 127, 254),
+          icon: SvgPicture.asset(
+            'lib/assets/icons/arrow-circle-left.svg',
+            height: 32,
+            width: 32,
           ),
           onPressed: () => setState(() => _selectedIndex = 0),
         ),
+
         titleSpacing: 0,
         title: Row(
           children: [

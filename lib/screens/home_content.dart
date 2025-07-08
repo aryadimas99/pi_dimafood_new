@@ -129,7 +129,6 @@ class _HomeContentState extends State<HomeContent> {
                       return menu.kategori == _selectedCategory;
                     }).toList();
 
-                // Grid responsif: jika lebar <600, 2 kolom, jika >=600, 3 kolom
                 int crossAxisCount = screenWidth < 600 ? 2 : 3;
 
                 return Column(

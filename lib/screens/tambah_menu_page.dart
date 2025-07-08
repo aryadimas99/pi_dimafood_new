@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -155,7 +156,11 @@ class _TambahMenuPageState extends State<TambahMenuPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF007FFE)),
+          icon: SvgPicture.asset(
+            'lib/assets/icons/arrow-circle-left.svg',
+            height: 32,
+            width: 32,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),

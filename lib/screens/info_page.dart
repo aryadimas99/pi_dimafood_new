@@ -17,7 +17,7 @@ class InfoPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'DimaFood adalah aplikasi pemesanan makanan dan minuman yang memudahkan pengguna untuk melihat menu, memesan secara langsung, dan menerima konfirmasi pesanan, serta memungkinkan admin mengelola data menu dan melihat laporan pemesanan dengan praktis.',
+            'DIMAFOOD adalah aplikasi pemesanan makanan dan minuman yang memudahkan pengguna untuk melihat menu, memesan secara langsung, dan menerima konfirmasi pesanan, serta memungkinkan admin mengelola data menu dan melihat laporan pemesanan dengan praktis.',
             style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 20),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pi_dimafood_new/screens/signin_page.dart';
+import 'package:pi_dimafood_new/screens/home_page.dart';
+import 'package:pi_dimafood_new/screens/admin_home_page.dart';
+import 'package:pi_dimafood_new/services/auth_service.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -10,21 +14,47 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  final AuthService _authService = AuthService();
+
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      // Sudah login, ambil role-nya
+      final role = await _authService.getUserRole(currentUser.uid);
+      if (!mounted) return;
+      if (role == 'admin') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminHomePage()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomePage()),
+        );
+      }
+    } else {
+      // Belum login
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SignInPage()),
+        MaterialPageRoute(builder: (_) => const SignInPage()),
       );
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: Colors.white,
       body: Center(
         child: Container(
           width: 180,

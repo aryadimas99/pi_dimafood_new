@@ -107,7 +107,7 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
         flushbarPosition: FlushbarPosition.TOP,
         onStatusChanged: (status) {
           if (status == FlushbarStatus.DISMISSED && mounted) {
-            Navigator.pop(context, true); // kirim true ke halaman sebelumnya
+            Navigator.pop(context, true);
           }
         },
       ).show(context);
@@ -171,7 +171,7 @@ class _UpdateMenuPageState extends State<UpdateMenuPage> {
         onStatusChanged: (status) {
           if (status == FlushbarStatus.DISMISSED && mounted) {
             Future.microtask(() {
-              Navigator.pop(context, true); // kirim true ke KelolaMenuPage
+              Navigator.pop(context, true);
             });
           }
         },
