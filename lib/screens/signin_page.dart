@@ -27,12 +27,25 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _loginUser() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      Flushbar(
+        message: "Email dan password tidak boleh kosong",
+        duration: const Duration(seconds: 4),
+        margin: const EdgeInsets.all(15),
+        borderRadius: BorderRadius.circular(10),
+        backgroundColor: Colors.red[700]!,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    final user = await _authService.loginUser(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
+    final user = await _authService.loginUser(email: email, password: password);
 
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -40,12 +53,13 @@ class _SignInPageState extends State<SignInPage> {
     if (user != null) {
       final role = await _authService.getUserRole(user.uid);
       if (!mounted) return;
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder:
               (_) => role == "admin" ? const AdminHomePage() : const HomePage(),
         ),
+        (route) => false,
       );
     } else {
       if (!mounted) return;
