@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pi_dimafood_new/screens/home_page.dart';
 import 'package:pi_dimafood_new/services/auth_service.dart';
+import 'package:another_flushbar/flushbar.dart'; // Tambahkan import ini
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -17,17 +18,12 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
   bool _isLoading = false;
   bool _isObscurePassword = true;
   bool _isObscureConfirm = true;
-  final AuthService _authService = AuthService();
 
-  void _resetFields() {
-    _emailController.clear();
-    _passwordController.clear();
-    _fullNameController.clear();
-    _confirmPasswordController.clear();
-  }
+  final AuthService _authService = AuthService();
 
   void _registerUser() async {
     final email = _emailController.text.trim();
@@ -70,38 +66,15 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.red[700],
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(15),
-        duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            _resetFields();
-          },
-        ),
-      ),
-    );
+    Flushbar(
+      message: message,
+      duration: const Duration(seconds: 4),
+      margin: const EdgeInsets.all(15),
+      borderRadius: BorderRadius.circular(10),
+      backgroundColor: Colors.red[700]!,
+      icon: const Icon(Icons.error_outline, color: Colors.white),
+      flushbarPosition: FlushbarPosition.TOP,
+    ).show(context);
   }
 
   @override
