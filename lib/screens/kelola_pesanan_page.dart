@@ -107,7 +107,7 @@ class KelolaPesananPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'ORDER - $orderCode',
+                        '$orderCode',
                         style: GoogleFonts.inter(
                           fontSize: isSmallScreen ? 10 : 12,
                         ),
