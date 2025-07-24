@@ -109,10 +109,7 @@ class AdminPesananPage extends StatelessWidget {
 
                   const SizedBox(height: 4),
                   Text(date, style: GoogleFonts.inter(fontSize: 12)),
-                  Text(
-                    'ORDER - $orderCode',
-                    style: GoogleFonts.inter(fontSize: 12),
-                  ),
+                  Text('$orderCode', style: GoogleFonts.inter(fontSize: 12)),
                   const Divider(height: 24),
 
                   // ITEMS
