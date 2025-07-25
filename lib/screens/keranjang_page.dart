@@ -161,7 +161,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
   Widget _buildCartItem(CartItem item, CartController controller) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         border: Border.all(color: const Color.fromARGB(255, 0, 127, 254)),
         borderRadius: BorderRadius.circular(12),
